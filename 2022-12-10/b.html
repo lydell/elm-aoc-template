@@ -125,6 +125,17 @@
         playButton.focus();
       };
 
+      const updateUiWhenDone = () => {
+        playing = false;
+        playButton.disabled = true;
+        playButton.textContent = "⏯";
+        previousButton.disabled = false;
+        nextButton.disabled = true;
+        restartButton.disabled = false;
+        restartButton.focus();
+        clearDebug();
+      };
+
       restartButton.onclick = () => {
         restart();
         updateButtonsAtRestart();
@@ -168,26 +179,6 @@
         }
       };
 
-      async function cycle() {
-        const cx = c % WIDTH;
-        const cy = Math.floor(c / WIDTH);
-        const lit = cx >= x - HALF_SPRITE_FLOOR && cx < x + HALF_SPRITE_CEIL;
-        c++;
-        if (lit) {
-          draw(cx, cy);
-        }
-        drawDebug(cx, cy, lit);
-      }
-
-      function draw(cx, cy, lit) {
-        mainCtx.fillRect(
-          cx * PIXEL_SIZE,
-          cy * PIXEL_SIZE,
-          PIXEL_SIZE,
-          PIXEL_SIZE
-        );
-      }
-
       function drawDebug(cx, cy, lit) {
         clearDebug();
         debugCtx.fillStyle = "rgba(255, 0, 0, 0.5)";
@@ -221,20 +212,29 @@ sprite: ${Array.from(
         debugCtx.clearRect(0, 0, debugCanvas.width, debugCanvas.height);
       }
 
+      function draw(cx, cy, lit) {
+        mainCtx.fillRect(
+          cx * PIXEL_SIZE,
+          cy * PIXEL_SIZE,
+          PIXEL_SIZE,
+          PIXEL_SIZE
+        );
+      }
+
       const tick = (forceNext = false) => {
         if (!playing && !forceNext) return;
         const { done, value } = generator.next();
         if (done) {
-          playing = false;
-          playButton.disabled = true;
-          playButton.textContent = "⏯";
-          previousButton.disabled = false;
-          nextButton.disabled = true;
-          restartButton.disabled = false;
-          restartButton.focus();
-          clearDebug();
+          updateUiWhenDone();
         } else {
-          cycle();
+          const cx = c % WIDTH;
+          const cy = Math.floor(c / WIDTH);
+          const lit = cx >= x - HALF_SPRITE_FLOOR && cx < x + HALF_SPRITE_CEIL;
+          c++;
+          if (lit) {
+            draw(cx, cy);
+          }
+          drawDebug(cx, cy, lit);
           if (value !== undefined) {
             x += value;
           }
