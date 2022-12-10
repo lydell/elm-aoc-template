@@ -148,6 +148,8 @@
         restart();
         if (end === 0) {
           updateButtonsAtRestart();
+        } else {
+          nextButton.disabled = false;
         }
         for (let i = 0; i < end; i++) {
           tick(true);
@@ -226,6 +228,7 @@ sprite: ${Array.from(
           playing = false;
           playButton.disabled = true;
           playButton.textContent = "⏯";
+          previousButton.disabled = false;
           nextButton.disabled = true;
           restartButton.disabled = false;
           restartButton.focus();
